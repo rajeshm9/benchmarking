@@ -47,10 +47,22 @@ We can change cpu max prime parameter from ansible configurable parameters.
 CPU_PRIME: 2000
 
 While benchmarking cpu though openssl speed rsa commmand
-
+ 
 
 Memory Benchmarking:
 ------------
+
+For memory benchmark we are using sysbench command
+
+When using the memory workload, sysbench will allocate a buffer (provided through the --memory-block-size parameter, defaults to 1kbyte) and each execution will read or write to this memory (--memory-oper, defaults to write) in a random or sequential manner (--memory-access-mode, defaults to sequential).
+
+sysbench memory --memory-block-size={{MEM_BLK_SIZE}} --memory-total-size={{MEM_TOT_SIZE}} --memory-access-mode={{MEM_ACC_MODE}} --threads={{ansible_processor_vcpus}} run
+
+We can change memory block size ,memory total size, memory access mode from  ansible configurable parameter
+
+MEM_BLK_SIZE : 4K
+MEM_TOT_SIZE : 100M
+MEM_ACC_MODE: rnd
 
 
 Network Benchmarking:
