@@ -1,12 +1,11 @@
 Role Name
 =========
 
-This roles uses various benchmarking tool for benchmarking linux system
+This roles uses various tools for benchmarking linux system for cpu, memory ,iops, network io
 
 Requirements
 ------------
 Ubuntu
-
 
 
 Role Variables
@@ -16,7 +15,7 @@ All configured variable are define in vars/main.yml.
 
 Dependencies
 ------------
-ansible
+ansible and package defined in playbook
 
 
 IOPS Benchmarking:
