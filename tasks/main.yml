@@ -1,0 +1,71 @@
+---
+# tasks file for benchmarking
+- name:  Gether host information  
+  setup:  
+    filter: ansible_processor_vcpus
+    
+- debug: 
+    msg: "Processer Count {{ansible_processor_vcpus}}"
+    
+- name: Install the required package
+  become: true
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - fio
+    - sysbench
+    - ioping
+    - openssl
+    - netperf
+    
+- name: IOPS Calculation Read and Write
+  shell: fio -randrepeat=1 -ioengine=libaio -direct=1 -gtod_reduce=1 -name=test -filename=test -bs=4k -iodepth=64 -size={{IOPS_FILESIZE}} -readwrite=randrw -rwmixread={{IOPS_RW}} |grep -o "IOPS=[0-9].*," |sed -E '0,/IOPS/s/IOPS/READ/g;' |sed -E 's/IOPS/WRITE/g'|tr -d "," |tr "\n" ","
+  register: fio_out
+  tags:
+    - iops
+  
+#- name:  IOPING to check latency
+- name:  CPU benchmarking with sysbench
+  shell: sysbench cpu --cpu-max-prime={{CPU_PRIME}} --threads={{ansible_processor_vcpus}} run |grep "total time:"|tr -s " " |cut -d ":" -f2
+  register: cpu_out
+  tags:
+    - cpu
+    
+- name:  CPU benchmarking with openssl 
+#  shell: openssl speed rsa |grep -A 15 "sign/s"
+  shell: cat /tmp/t.1 |grep -A 15 "sign/s"
+  register: cpu_out_openssl
+  tags:
+    - cpu
+  
+- name: Mem benchmarking
+  shell: sysbench memory --memory-block-size={{MEM_BLK_SIZE}} --memory-total-size={{MEM_TOT_SIZE}} --memory-access-mode={{MEM_ACC_MODE}} --threads={{ansible_processor_vcpus}} run|grep "total time:"|tr -s " " |cut -d ":" -f2
+  register: mem_out
+  tags:
+    - mem
+
+- name: Network Thoughput
+  shell: pidof netserver && netperf -c -f {{NET_UNIT}}
+  register: net_out
+  ignore_errors: yes
+  
+- name: Put all results in txt file
+  shell: echo "[{{inventory_hostname}} CPU_COUNT={{ansible_processor_vcpus}}]\n=====IOPS OUTPUT=====\n{{fio_out.stdout_lines[0]}}\n=====CPU Benchmarking for {{CPU_PRIME}} PRIME=====\n{{cpu_out.stdout_lines[0]}}\n=====CPU Benchmarking with openssl=====" >{{OUT_FILE}}_{{inventory_hostname}}.txt
+  
+- name:  Append Openssl output  
+  shell: echo "{{item}}" >> {{OUT_FILE}}_{{inventory_hostname}}.txt
+  with_items: "{{cpu_out_openssl.stdout_lines}}"
+  
+- name: Memory output
+  shell: echo "=====Memory Benchmarking Total_Size={{MEM_TOT_SIZE}} BLK_SIZE={{MEM_BLK_SIZE}}=====\n{{mem_out.stdout_lines[0]}}\n=====Network Benchmarking=====\n" >>{{OUT_FILE}}_{{inventory_hostname}}.txt
+
+- name: Network Output
+  shell: echo "{{item}}" >>{{OUT_FILE}}_{{inventory_hostname}}.txt
+  with_items: "{{net_out.stdout_lines}}"
+  
+  
+  tags:
+  - always
+
+

@@ -1,0 +1,12 @@
+---
+# vars file for benchmarking
+IOPS_FILESIZE: 10M
+IOPS_RW : 75
+CPU_PRIME: 2000
+MEM_BLK_SIZE : 4K
+MEM_TOT_SIZE : 100M
+MEM_ACC_MODE: rnd
+NET_UNIT: G
+OUT_FILE : report
+
+
