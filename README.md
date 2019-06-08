@@ -61,7 +61,9 @@ sysbench memory --memory-block-size={{MEM_BLK_SIZE}} --memory-total-size={{MEM_T
 We can change memory block size ,memory total size, memory access mode from  ansible configurable parameter
 
 MEM_BLK_SIZE : 4K
+
 MEM_TOT_SIZE : 100M
+
 MEM_ACC_MODE: rnd
 
 
@@ -75,6 +77,7 @@ Following command is used to find the network performace of local network transf
 netperf  -c  -f G
 
 We can change Output unit in following format
+
 NET_UNIT: G (Possible values are G|M|K|g|m|k)
        
 
