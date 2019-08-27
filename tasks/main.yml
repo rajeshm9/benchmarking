@@ -33,8 +33,8 @@
     - cpu
     
 - name:  CPU benchmarking with openssl 
-#  shell: openssl speed rsa |grep -A 15 "sign/s"
-  shell: cat /tmp/t.1 |grep -A 15 "sign/s"
+  shell: openssl speed rsa |grep -A 15 "sign/s"
+#  shell: cat /tmp/t.1 |grep -A 15 "sign/s" # For testing puspose
   register: cpu_out_openssl
   tags:
     - cpu
